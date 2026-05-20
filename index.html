@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Scraps Bot</title>
+
+  <!-- FONT -->
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- CSS -->
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
+</head>
+
+<body>
+
+  <main class="app-shell">
+
+    <!-- ========================= -->
+    <!-- MENU SCREEN -->
+    <!-- ========================= -->
+
+    <section
+      id="modeScreen"
+      class="screen"
+    >
+
+      <h1>Scraps Bot</h1>
+
+      <p class="subtitle">
+        Pick a game mode to find the scrap!
+      </p>
+
+      <!-- ROBOT -->
+
+      <div class="robot-stage">
+
+        <div class="antenna"></div>
+
+        <div class="antenna-ball"></div>
+
+        <div class="robot">
+
+          <div class="visor">
+
+            <div class="eye left-eye"></div>
+
+            <div class="eye right-eye"></div>
+
+          </div>
+
+          <div class="cheek"></div>
+
+          <div class="arm left-arm"></div>
+
+          <div class="arm right-arm"></div>
+
+        </div>
+
+      </div>
+
+      <!-- MENU BUTTONS -->
+
+      <div class="menu-buttons">
+
+        <button onclick="startGame('facts', false)">
+          Weird Facts
+        </button>
+
+        <button onclick="startGame('math', false)">
+          Math Equations
+        </button>
+
+        <button onclick="startGame('grammar', false)">
+          Grammar
+        </button>
+
+        <button onclick="showLeaderboard()">
+          Leaderboard
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- GAME SCREEN -->
+    <!-- ========================= -->
+
+    <section
+      id="gameScreen"
+      class="screen hidden"
+    >
+
+      <h1>Scraps Bot</h1>
+
+      <!-- SCORE -->
+
+      <p class="stats">
+
+        Score:
+        <span id="score">0</span>
+
+        |
+
+        Streak:
+        <span id="streak">0</span>
+
+        |
+
+        Round:
+        <span id="roundNumber">1</span>
+
+      </p>
+
+      <!-- ROBOT -->
+
+      <div class="robot-stage small">
+
+        <div class="antenna"></div>
+
+        <div class="antenna-ball"></div>
+
+        <div class="robot">
+
+          <div class="visor">
+
+            <div class="eye"></div>
+
+            <div class="eye"></div>
+
+          </div>
+
+          <div class="cheek"></div>
+
+          <div class="arm left-arm"></div>
+
+          <div class="arm right-arm"></div>
+
+        </div>
+
+      </div>
+
+      <!-- ROBOT TEXT -->
+
+      <p id="scrapsText">
+        Scraps bot is ready.
+      </p>
+
+      <!-- ANSWERS -->
+
+      <div id="factButtons"></div>
+
+      <!-- RESULT -->
+
+      <div id="resultBox"></div>
+
+      <!-- CONTROLS -->
+
+      <button
+        id="nextBtn"
+        onclick="nextRound()"
+      >
+        Next Round
+      </button>
+
+      <!-- CHANGE MODE -->
+
+      <button
+        onclick="backToMenu(false)"
+      >
+        Change Game Mode
+      </button>
+
+      <!-- QUIT -->
+
+      <button
+        onclick="quitGame()"
+      >
+        Quit / Save Score
+      </button>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- LEADERBOARD SCREEN -->
+    <!-- ========================= -->
+
+    <section
+      id="leaderboardScreen"
+      class="screen hidden"
+    >
+
+      <h1>Leaderboard</h1>
+
+      <p class="subtitle">
+        Top Scrap Finders
+      </p>
+
+      <!-- ROBOT -->
+
+      <div class="robot-stage small">
+
+        <div class="antenna"></div>
+
+        <div class="antenna-ball"></div>
+
+        <div class="robot">
+
+          <div class="visor">
+
+            <div class="eye"></div>
+
+            <div class="eye"></div>
+
+          </div>
+
+          <div class="cheek"></div>
+
+          <div class="arm left-arm"></div>
+
+          <div class="arm right-arm"></div>
+
+        </div>
+
+      </div>
+
+      <!-- SCORES -->
+
+      <div id="leaderboardList"></div>
+
+      <!-- BUTTON -->
+
+      <button
+        onclick="backToMenu(true)"
+      >
+        Back To Menu
+      </button>
+
+    </section>
+
+  </main>
+
+  <!-- SCRIPT -->
+
+  <script src="script.js"></script>
+
+</body>
+</html>
