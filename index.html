@@ -9,7 +9,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>Scraps Bot</title>
+  <title>Fact or Scrap?</title>
 
   <!-- FONT -->
 
@@ -42,7 +42,7 @@
       <h1>Scraps Bot</h1>
 
       <p class="subtitle">
-        Pick a game mode to find the scrap!
+        Pick a category to find the scrap!
       </p>
 
       <!-- ROBOT -->
@@ -77,21 +77,12 @@
 
       <div class="menu-buttons">
 
-        <button onclick="startGame('facts')">
-          Weird Facts
-        </button>
+       <button onclick="startGame('science')">SCIENCE FACTS</button>
+      <button onclick="startGame('history')">HISTORY FACTS</button>
+        <button onclick="startGame('animals')">ANIMAL & NATURE FACTS</button>
+          <button onclick="startGame('interesting')">WEIRD FACTS</button>
 
-        <button onclick="startGame('math')">
-          Math Equations
-        </button>
-
-        <button onclick="startGame('grammar')">
-          Grammar
-        </button>
-
-        <button onclick="showLeaderboard()">
-          Leaderboard
-        </button>
+       
 
       </div>
 
@@ -108,7 +99,7 @@
       class="screen hidden"
     >
 
-      <h1>Scraps Bot</h1>
+      <h1>Fact or Scrap?</h1>
 
       <!-- SCORE -->
 
@@ -231,7 +222,7 @@
 
       <!-- SCORES -->
 
-      <div id="leaderboardList"></div>
+    
 
       <!-- BUTTON -->
 
