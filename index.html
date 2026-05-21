@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
 
@@ -76,15 +77,15 @@
 
       <div class="menu-buttons">
 
-        <button onclick="startGame('facts', false)">
+        <button onclick="startGame('facts')">
           Weird Facts
         </button>
 
-        <button onclick="startGame('math', false)">
+        <button onclick="startGame('math')">
           Math Equations
         </button>
 
-        <button onclick="startGame('grammar', false)">
+        <button onclick="startGame('grammar')">
           Grammar
         </button>
 
@@ -172,28 +173,16 @@
 
       <!-- CONTROLS -->
 
-      <button
-        id="nextBtn"
-        onclick="nextRound()"
-      >
-        Next Round
-      </button>
+    <div class="gameControls">
 
-      <!-- CHANGE MODE -->
+  <button
+    onclick="backToMenu(false)"
+  >
+ 
+          MAIN MENU
+        </button>
 
-      <button
-        onclick="backToMenu(false)"
-      >
-        Change Game Mode
-      </button>
-
-      <!-- QUIT -->
-
-      <button
-        onclick="quitGame()"
-      >
-        Quit / Save Score
-      </button>
+      </div>
 
     </section>
 
@@ -249,7 +238,7 @@
       <!-- BUTTON -->
 
       <button
-        onclick="backToMenu(true)"
+        onclick="backToMenu(false)"
       >
         Back To Menu
       </button>
