@@ -11,10 +11,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "openai": "^6.38.0",
     "socket.io": "^4.8.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bluecats3/scraps-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Bluecats3/scraps-bot/issues"
+  },
+  "homepage": "https://github.com/Bluecats3/scraps-bot#readme"
 }
