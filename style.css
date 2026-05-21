@@ -657,3 +657,24 @@ button:hover,
   font-size: 12px;
   min-height: 18px;
 }
+
+.menuBtn {
+
+  background: #ffd84d !important;
+
+  color: #222;
+
+  min-height: 42px !important;
+
+  width: 58% !important;
+
+  margin: 12px auto 0;
+
+  font-size: 12px !important;
+
+  border-radius: 14px;
+
+  opacity: 0.92;
+
+  box-shadow: 0 4px 0 #caa52f !important;
+}
