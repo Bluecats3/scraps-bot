@@ -1,13 +1,19 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static("."));
+
+const PORT = process.env.PORT || 3000;
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -18,6 +24,7 @@ if (!process.env.OPENAI_API_KEY) {
 }
 
 const usedFacts = [];
+const rooms = {};
 
 const fallbackRounds = {
     science: [
@@ -31,7 +38,6 @@ const fallbackRounds = {
             explanation: "Space has no breathable air for humans."
         }
     ],
-
     history: [
         {
             facts: [
@@ -43,7 +49,6 @@ const fallbackRounds = {
             explanation: "Dinosaurs lived long before humans."
         }
     ],
-
     animals: [
         {
             facts: [
@@ -55,7 +60,6 @@ const fallbackRounds = {
             explanation: "Bananas grow on large herb plants."
         }
     ],
-
     interesting: [
         {
             facts: [
@@ -68,6 +72,13 @@ const fallbackRounds = {
         }
     ]
 };
+
+function createRoomCode() {
+    return Math.random()
+        .toString(36)
+        .substring(2, 6)
+        .toUpperCase();
+}
 
 function getModeRules(mode) {
     if (mode === "science") {
@@ -105,8 +116,7 @@ Exactly 1 statement is fake.
 `;
 }
 
-app.get("/round", async (req, res) => {
-    const mode = req.query.mode || "interesting";
+async function generateRound(mode = "interesting") {
     const modeRules = getModeRules(mode);
 
     try {
@@ -170,7 +180,7 @@ JSON format:
             usedFacts.splice(0, usedFacts.length - 100);
         }
 
-        res.json(round);
+        return round;
 
     } catch (error) {
         console.error("Round generation error:", error.message);
@@ -178,17 +188,129 @@ JSON format:
         const modeFallbacks =
             fallbackRounds[mode] || fallbackRounds.interesting;
 
-        const fallback =
-            modeFallbacks[
-                Math.floor(Math.random() * modeFallbacks.length)
-            ];
-
-        res.json(fallback);
+        return modeFallbacks[
+            Math.floor(Math.random() * modeFallbacks.length)
+        ];
     }
+}
+
+app.get("/round", async (req, res) => {
+    const mode = req.query.mode || "interesting";
+    const round = await generateRound(mode);
+    res.json(round);
 });
 
-const PORT = process.env.PORT || 3000;
+io.on("connection", (socket) => {
+    console.log("Player connected:", socket.id);
 
-app.listen(PORT, () => {
-    console.log(`Scraps Bot running on port ${PORT}`);
+    socket.on("createRoom", (playerName) => {
+        const code = createRoomCode();
+
+        rooms[code] = {
+            players: [],
+            scores: {},
+            currentRound: null,
+            mode: "interesting"
+        };
+
+        socket.join(code);
+
+        rooms[code].players.push({
+            id: socket.id,
+            name: playerName || "Player"
+        });
+
+        rooms[code].scores[socket.id] = 0;
+
+        socket.emit("roomCreated", code);
+        io.to(code).emit("playersUpdated", rooms[code].players);
+        io.to(code).emit("scoreUpdated", rooms[code].scores);
+
+        console.log("Room created:", code);
+    });
+
+    socket.on("joinRoom", ({ code, playerName }) => {
+        code = code.toUpperCase();
+
+        if (!rooms[code]) {
+            socket.emit("errorMessage", "Room not found");
+            return;
+        }
+
+        socket.join(code);
+
+        rooms[code].players.push({
+            id: socket.id,
+            name: playerName || "Player"
+        });
+
+        rooms[code].scores[socket.id] = 0;
+
+        socket.emit("roomJoined", code);
+        io.to(code).emit("playersUpdated", rooms[code].players);
+        io.to(code).emit("scoreUpdated", rooms[code].scores);
+
+        console.log(playerName, "joined", code);
+    });
+
+    socket.on("startRound", async ({ code, mode }) => {
+        code = code.toUpperCase();
+
+        if (!rooms[code]) {
+            socket.emit("errorMessage", "Room not found");
+            return;
+        }
+
+        const round = await generateRound(mode || rooms[code].mode || "interesting");
+
+        rooms[code].currentRound = round;
+        rooms[code].mode = mode || "interesting";
+
+        io.to(code).emit("newRound", round);
+    });
+
+    socket.on("submitAnswer", ({ code, answerIndex }) => {
+        code = code.toUpperCase();
+
+        const room = rooms[code];
+
+        if (!room || !room.currentRound) return;
+
+        const round = room.currentRound;
+        const correct = answerIndex === round.fakeIndex;
+
+        if (correct) {
+            room.scores[socket.id]++;
+        }
+
+        io.to(code).emit("scoreUpdated", room.scores);
+
+        socket.emit("answerResult", {
+            correct,
+            explanation: round.explanation
+        });
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Disconnected:", socket.id);
+
+        for (const code in rooms) {
+            rooms[code].players = rooms[code].players.filter(
+                player => player.id !== socket.id
+            );
+
+            delete rooms[code].scores[socket.id];
+
+            io.to(code).emit("playersUpdated", rooms[code].players);
+            io.to(code).emit("scoreUpdated", rooms[code].scores);
+
+            if (rooms[code].players.length === 0) {
+                delete rooms[code];
+            }
+        }
+    });
+});
+
+server.listen(PORT, () => {
+    console.log(`Scraps Bot multiplayer server running on port ${PORT}`);
 });

@@ -1,3 +1,7 @@
+const socket = io();
+
+let multiplayerRoomCode = "";
+
 console.log("SCRAPS BOT LOADED");
 
 let score = 0;
@@ -5,14 +9,14 @@ let streak = 0;
 let roundNumber = 1;
 let currentRound = null;
 let answered = false;
-let gameMode = "facts";
+let gameMode = "interesting";
 
 let currentRequestId = 0;
 let isLoadingRound = false;
 
-function getActiveRobot() {
-    return document.querySelector("#gameScreen .robot");
-}
+// =========================
+// SOUNDS
+// =========================
 
 const correctSound = new Audio("sounds/correct.mp3");
 const wrongSound = new Audio("sounds/wrong.mp3");
@@ -24,8 +28,69 @@ function playSound(sound) {
     sound.play().catch(() => {});
 }
 
-function startGame(mode, resetScore = false) {
+// =========================
+// SCREENS
+// =========================
 
+const modeScreen = document.getElementById("modeScreen");
+const gameScreen = document.getElementById("gameScreen");
+const multiplayerScreen = document.getElementById("multiplayerScreen");
+
+function openMultiplayerMenu() {
+    modeScreen.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    multiplayerScreen.classList.remove("hidden");
+}
+
+function closeMultiplayerMenu() {
+    multiplayerScreen.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    modeScreen.classList.remove("hidden");
+}
+
+// =========================
+// ROBOT
+// =========================
+
+function getActiveRobot() {
+    return document.querySelector("#gameScreen .robot");
+}
+
+function robotHappy() {
+    const robot = getActiveRobot();
+
+    if (!robot) return;
+
+    robot.classList.remove("mad");
+    robot.classList.add("happy");
+
+    setTimeout(() => {
+        robot.classList.remove("happy");
+    }, 900);
+}
+
+function robotMad() {
+    const robot = getActiveRobot();
+
+    if (!robot) return;
+
+    robot.classList.remove("happy");
+    robot.classList.add("mad");
+
+    setTimeout(() => {
+        robot.classList.remove("mad");
+    }, 500);
+}
+
+function scrapsTalk(text) {
+    document.getElementById("scrapsText").textContent = text;
+}
+
+// =========================
+// SOLO GAME
+// =========================
+
+function startGame(mode, resetScore = false) {
     currentRequestId++;
 
     gameMode = mode;
@@ -33,8 +98,9 @@ function startGame(mode, resetScore = false) {
     introSound.currentTime = 0;
     introSound.play().catch(() => {});
 
-    document.getElementById("modeScreen").classList.add("hidden");
-    document.getElementById("gameScreen").classList.remove("hidden");
+    modeScreen.classList.add("hidden");
+    multiplayerScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
 
     if (resetScore) {
         score = 0;
@@ -46,7 +112,6 @@ function startGame(mode, resetScore = false) {
 }
 
 async function nextRound() {
-
     const requestId = ++currentRequestId;
 
     isLoadingRound = true;
@@ -67,16 +132,12 @@ async function nextRound() {
     document.getElementById("roundNumber").textContent = roundNumber;
 
     const container = document.getElementById("factButtons");
-
     container.innerHTML = "";
 
     try {
-
         const response = await fetch(`/round?mode=${gameMode}`);
-
         const round = await response.json();
 
-        // cancel old requests
         if (requestId !== currentRequestId) {
             return;
         }
@@ -92,13 +153,11 @@ async function nextRound() {
 
         currentRound = round;
 
-        // clear again just in case
         container.innerHTML = "";
 
         scrapsTalk("I FOUND 2 REAL FACTS AND 1 SCRAP!");
 
         round.facts.forEach((fact, index) => {
-
             const btn = document.createElement("button");
 
             btn.className = "factBtn";
@@ -112,23 +171,14 @@ async function nextRound() {
         });
 
     } catch (error) {
-
         console.error("Round load error:", error);
-
         scrapsTalk("MY CIRCUITS JAMMED.");
-
     } finally {
-
         isLoadingRound = false;
     }
 }
 
-function scrapsTalk(text) {
-    document.getElementById("scrapsText").textContent = text;
-}
-
 function checkAnswer(index, button) {
-
     if (answered) return;
 
     answered = true;
@@ -142,7 +192,6 @@ function checkAnswer(index, button) {
     const correct = currentRound.fakeIndex;
 
     if (index === correct) {
-
         score++;
         streak++;
 
@@ -156,7 +205,6 @@ function checkAnswer(index, button) {
         robotHappy();
 
     } else {
-
         streak = 0;
 
         playSound(wrongSound);
@@ -180,61 +228,180 @@ function checkAnswer(index, button) {
     roundNumber++;
 
     setTimeout(() => {
-
-        if (!document.getElementById("gameScreen").classList.contains("hidden")) {
+        if (!gameScreen.classList.contains("hidden")) {
             nextRound();
         }
-
     }, 2200);
 }
 
-function robotHappy() {
+// =========================
+// MULTIPLAYER
+// =========================
 
-    const robot = getActiveRobot();
+const playerNameInput = document.getElementById("playerNameInput");
+const roomCodeInput = document.getElementById("roomCodeInput");
+const createRoomBtn = document.getElementById("createRoomBtn");
+const joinRoomBtn = document.getElementById("joinRoomBtn");
+const roomCodeDisplay = document.getElementById("roomCodeDisplay");
+const startRoundBtn = document.getElementById("startRoundBtn");
+const playersList = document.getElementById("playersList");
 
-    if (!robot) return;
+createRoomBtn.addEventListener("click", () => {
+    const playerName = playerNameInput.value.trim() || "Host";
 
-    robot.classList.remove("mad");
+    socket.emit("createRoom", playerName);
+});
 
-    robot.classList.add("happy");
+joinRoomBtn.addEventListener("click", () => {
+    const playerName = playerNameInput.value.trim() || "Player";
+    const code = roomCodeInput.value.trim().toUpperCase();
 
-    setTimeout(() => {
-        robot.classList.remove("happy");
-    }, 900);
+    if (!code) {
+        alert("Enter a room code first.");
+        return;
+    }
+
+    socket.emit("joinRoom", {
+        code,
+        playerName
+    });
+});
+
+socket.on("roomCreated", (code) => {
+    multiplayerRoomCode = code;
+
+    roomCodeDisplay.textContent = `Room Code: ${code}`;
+    startRoundBtn.style.display = "block";
+});
+
+socket.on("roomJoined", (code) => {
+    multiplayerRoomCode = code;
+
+    roomCodeDisplay.textContent = `Joined Room: ${code}`;
+    startRoundBtn.style.display = "none";
+});
+
+socket.on("playersUpdated", (players) => {
+    playersList.innerHTML = "<h3>Players</h3>";
+
+    players.forEach(player => {
+        const p = document.createElement("p");
+        p.textContent = player.name;
+        playersList.appendChild(p);
+    });
+});
+
+startRoundBtn.addEventListener("click", () => {
+    socket.emit("startRound", {
+        code: multiplayerRoomCode,
+        mode: gameMode || "interesting"
+    });
+});
+
+socket.on("newRound", (round) => {
+    currentRound = round;
+    answered = false;
+
+    multiplayerScreen.classList.add("hidden");
+    modeScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    showMultiplayerRound(round);
+});
+
+function showMultiplayerRound(round) {
+    const container = document.getElementById("factButtons");
+
+    container.innerHTML = "";
+    document.getElementById("resultBox").innerHTML = "";
+
+    scrapsTalk("MULTIPLAYER ROUND STARTED!");
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("streak").textContent = streak;
+    document.getElementById("roundNumber").textContent = roundNumber;
+
+    round.facts.forEach((fact, index) => {
+        const btn = document.createElement("button");
+
+        btn.className = "factBtn";
+        btn.textContent = fact;
+
+        btn.onclick = () => {
+            if (answered) return;
+
+            answered = true;
+
+            socket.emit("submitAnswer", {
+                code: multiplayerRoomCode,
+                answerIndex: index
+            });
+        };
+
+        container.appendChild(btn);
+    });
 }
 
-function robotMad() {
+socket.on("answerResult", (result) => {
+    const buttons = document.querySelectorAll(".factBtn");
 
-    const robot = getActiveRobot();
+    buttons.forEach(btn => {
+        btn.disabled = true;
+    });
 
-    if (!robot) return;
+    if (result.correct) {
+        score++;
+        streak++;
 
-    robot.classList.remove("happy");
+        playSound(correctSound);
+        playSound(pointSound);
 
-    robot.classList.add("mad");
+        scrapsTalk("YAY! MORE SCRAP!");
+        robotHappy();
 
-    setTimeout(() => {
-        robot.classList.remove("mad");
-    }, 500);
-}
+    } else {
+        streak = 0;
+
+        playSound(wrongSound);
+
+        scrapsTalk("THAT IS NOT SCRAP!");
+        robotMad();
+    }
+
+    document.getElementById("resultBox").innerHTML =
+        result.explanation;
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("streak").textContent = streak;
+
+    roundNumber++;
+    document.getElementById("roundNumber").textContent = roundNumber;
+});
+
+socket.on("scoreUpdated", (scores) => {
+    console.log("Scores:", scores);
+});
+
+socket.on("errorMessage", (message) => {
+    alert(message);
+});
+
+// =========================
+// BACK TO MENU
+// =========================
 
 function backToMenu(resetGame = false) {
-
-    // invalidate all loading requests
     currentRequestId++;
-
     isLoadingRound = false;
 
-    document.getElementById("modeScreen").classList.remove("hidden");
-
-    document.getElementById("gameScreen").classList.add("hidden");
+    modeScreen.classList.remove("hidden");
+    gameScreen.classList.add("hidden");
+    multiplayerScreen.classList.add("hidden");
 
     document.getElementById("factButtons").innerHTML = "";
-
     document.getElementById("resultBox").innerHTML = "";
 
     if (resetGame) {
-
         score = 0;
         streak = 0;
         roundNumber = 1;
