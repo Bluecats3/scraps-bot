@@ -33,14 +33,17 @@ workflows:
         script: |
           npx cap sync ios
 
-      - name: Build iOS project
+      - name: Build iOS project 
         script: |
+          cd ios/App
           xcodebuild \
-            -workspace ios/App/App.xcworkspace \
+            -workspace App.xcworkspace \
             -scheme App \
             -sdk iphonesimulator \
-            -configuration Debug build
-
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+                                          
     artifacts:
       - ios/build/**/*.app
       - ios/build/**/*.ipa
