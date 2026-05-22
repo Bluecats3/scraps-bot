@@ -9,6 +9,9 @@ workflows:
 
     environment:
       node: 22
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bluecats3.professorscraps
 
     scripts:
       - name: Install dependencies
@@ -18,10 +21,7 @@ workflows:
       - name: Prepare web assets
         script: |
           mkdir -p www
-          cp index.html www/
-          cp style.css www/
-          cp script.js www/
-          cp manifest.json www/
+          cp index.html style.css script.js manifest.json www/
           cp *.png www/ 2>/dev/null || true
           cp favicon.ico www/ 2>/dev/null || true
 
@@ -39,28 +39,15 @@ workflows:
         script: |
           npx cap sync ios
 
-      - name: Create export options plist
+      - name: Set up code signing
         script: |
-          python3 - <<'PY'
-          import plistlib
-
-          data = {
-              "method": "app-store-connect",
-              "signingStyle": "automatic"
-          }
-
-          with open("/Users/builder/export_options.plist", "wb") as f:
-              plistlib.dump(data, f)
-          PY
-
-          plutil -lint /Users/builder/export_options.plist
+          xcode-project use-profiles --project ios/App/App.xcodeproj
 
       - name: Build IPA
         script: |
           xcode-project build-ipa \
             --project ios/App/App.xcodeproj \
-            --scheme App \
-            --export-options-plist /Users/builder/export_options.plist
+            --scheme App
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -70,3 +57,6 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
+        submit_to_app_store: true
+        cancel_previous_submissions: true
+        release_type: MANUAL
