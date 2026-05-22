@@ -43,7 +43,7 @@ workflows:
 
       - name: Show iOS files
         script: |
-          find . -name "*.xcworkspace" -o -name "*.xcodeproj" -o -name "*.mobileprovision"
+          find . -name "*.xcworkspace" -o -name "*.xcodeproj"
 
       - name: Set up code signing
         script: |
@@ -56,11 +56,8 @@ workflows:
             --project ios/App/App.xcodeproj \
             --scheme App \
             --config Release \
-            --archive-flags="-destination 'generic/platform=iOS' DEVELOPMENT_TEAM=34774CV554 PRODUCT_BUNDLE_IDENTIFIER=com.bluecats3.professorscraps PROVISIONING_PROFILE_SPECIFIER='ProfessorScraps App Store Profile'" \
-            --export-options-plist=/Users/builder/export_options.plist
+            --archive-flags="-destination 'generic/platform=iOS' DEVELOPMENT_TEAM=34774CV554 CODE_SIGN_STYLE=Automatic"
 
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
-
- 
