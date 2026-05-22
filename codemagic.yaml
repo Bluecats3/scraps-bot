@@ -7,6 +7,10 @@ workflows:
     environment:
       node: 22
 
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bluecats3.professorscraps
+
     scripts:
       - name: Install dependencies
         script: |
@@ -44,6 +48,20 @@ workflows:
       - name: Show iOS files
         script: |
           find . -name "*.xcworkspace" -o -name "*.xcodeproj"
+
+      - name: Fetch signing files
+        script: |
+          app-store-connect fetch-signing-files com.bluecats3.professorscraps \
+            --type IOS_APP_STORE \
+            --create
+
+      - name: Initialize keychain
+        script: |
+          keychain initialize
+
+      - name: Add certificates
+        script: |
+          keychain add-certificates
 
       - name: Set up code signing
         script: |
