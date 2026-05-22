@@ -63,10 +63,4 @@ workflows:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
 
-    publishing:
-      email:
-        recipients:
-          - YOUR_EMAIL_HERE
-        notify:
-          success: true
-          failure: true
+ 
