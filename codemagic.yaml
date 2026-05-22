@@ -23,16 +23,16 @@ workflows:
         script: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
 
-      - name: Add iOS platform if missing or broken
+      - name: Recreate iOS platform
         script: |
-          if [ ! -f "ios/App/App.xcworkspace" ]; then
-            rm -rf ios
-            npx cap add ios
-          fi
+          rm -rf ios
+          npx cap add ios
 
       - name: Sync Capacitor
         script: |
           npx cap sync ios
+          echo "Checking ios/App:"
+          ls -la ios/App
 
       - name: Increase iOS build number
         script: |
@@ -58,4 +58,4 @@ workflows:
 
     artifacts:
       - ios/App/build/*.ipa
-      - ios/App/build/**/*.xcarchive
+      - ios/App/build/ios/ipa/*.ipa
