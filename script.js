@@ -1,4 +1,4 @@
-const socket = io();
+
 
 let multiplayerRoomCode = "";
 
@@ -24,9 +24,12 @@ const pointSound = new Audio("sounds/point.mp3");
 const introSound = new Audio("sounds/intro.mp3");
 
 function playSound(sound) {
-    sound.currentTime = 0;
-    sound.play().catch(() => {});
+    const soundClone = sound.cloneNode();
+    soundClone.volume = 1;
+    soundClone.play().catch(() => {});
 }
+
+
 
 // =========================
 // SCREENS
@@ -34,17 +37,24 @@ function playSound(sound) {
 
 const modeScreen = document.getElementById("modeScreen");
 const gameScreen = document.getElementById("gameScreen");
-const multiplayerScreen = document.getElementById("multiplayerScreen");
 
-function openMultiplayerMenu() {
+const rulesScreen = document.getElementById("rulesScreen");
+
+
+
+// ADD THESE HERE ↓↓↓
+
+function openRules() {
+
     modeScreen.classList.add("hidden");
-    gameScreen.classList.add("hidden");
-    multiplayerScreen.classList.remove("hidden");
+
+    rulesScreen.classList.remove("hidden");
 }
 
-function closeMultiplayerMenu() {
-    multiplayerScreen.classList.add("hidden");
-    gameScreen.classList.add("hidden");
+function closeRules() {
+
+    rulesScreen.classList.add("hidden");
+
     modeScreen.classList.remove("hidden");
 }
 
@@ -99,7 +109,7 @@ function startGame(mode, resetScore = false) {
     introSound.play().catch(() => {});
 
     modeScreen.classList.add("hidden");
-    multiplayerScreen.classList.add("hidden");
+    
     gameScreen.classList.remove("hidden");
 
     if (resetScore) {
@@ -124,12 +134,31 @@ async function nextRound() {
         robot.classList.remove("mad");
     }
 
-    scrapsTalk("DIGGING THROUGH FACTS AND SCRAP...");
+        const loadingMessages = [
+    "DIGGING THROUGH FACTS AND SCRAP...",
+    "SCANNING THE INTERNET FOR WEIRDNESS...",
+    "CHECKING FOR SCRAP...",
+    "ANALYZING QUESTIONABLE INFORMATION...",
+    "SEARCHING FOR SUSPICIOUS FACTS...",
+    "VERIFYING STRANGE CLAIMS...",
+    "LOOKING FOR FAKE FACTS...",
+    "SCANNING HUMAN KNOWLEDGE...",
+    "DETECTING POSSIBLE NONSENSE..."
+];
 
-    document.getElementById("resultBox").innerHTML = "";
-    document.getElementById("score").textContent = score;
-    document.getElementById("streak").textContent = streak;
-    document.getElementById("roundNumber").textContent = roundNumber;
+const randomMessage =
+    loadingMessages[
+        Math.floor(Math.random() * loadingMessages.length)
+    ];
+
+scrapsTalk(randomMessage);
+
+    
+document.getElementById("resultBox").innerHTML = "";
+document.getElementById("score").textContent = score;
+document.getElementById("streak").textContent = streak;
+document.getElementById("roundNumber").textContent = roundNumber;
+
 
     const container = document.getElementById("factButtons");
     container.innerHTML = "";
@@ -200,7 +229,30 @@ function checkAnswer(index, button) {
 
         button.classList.add("correct");
 
-        scrapsTalk("YAY! MORE SCRAP!");
+        const correctMessages = [
+    "YAY! MORE SCRAP!",
+    "SCRAP DETECTED!",
+    "CORRECT SCRAP IDENTIFICATION!",
+    "YOU FOUND THE FAKE!",
+    "EXCELLENT SCRAP WORK.",
+    "SCRAP BOT APPROVES.",
+    "CORRECT! HUMAN SUCCESS.",
+    "THAT FACT WAS TOTAL SCRAP.",
+    "YOU OUTSMARTED THE SCRAP.",
+    "SCRAP CONFIRMED.",
+    "CORRECT ANSWER DETECTED.",
+    "FAKE FACT ELIMINATED.",
+    "THAT WAS DEFINITELY SCRAP.",
+    "SCRAP HUNTER LEVEL INCREASING.",
+    "NICE WORK, HUMAN."
+];
+
+const randomCorrectMessage =
+    correctMessages[
+        Math.floor(Math.random() * correctMessages.length)
+    ];
+
+scrapsTalk(randomCorrectMessage);
 
         robotHappy();
 
@@ -213,7 +265,29 @@ function checkAnswer(index, button) {
 
         buttons[correct].classList.add("correct");
 
-        scrapsTalk("THAT IS NOT SCRAP!");
+        const wrongMessages = [
+    "THAT IS NOT SCRAP!",
+    "NEGATIVE. REAL FACT DETECTED.",
+    "INCORRECT SCRAP IDENTIFICATION.",
+    "YOU FOUND A REAL FACT.",
+    "THAT FACT IS AUTHENTIC.",
+    "SCRAP BOT DISAGREES.",
+    "MY CIRCUITS SAY NO.",
+    "THAT ONE IS REAL.",
+    "SCRAP DETECTOR FAILED.",
+    "INCORRECT! TRY AGAIN.",
+    "HUMAN ERROR DETECTED.",
+    "YOU MISSED THE SCRAP!",
+    "THAT IS CERTIFIED REAL.",
+    "WARNING: FALSE SCRAP REPORT."
+];
+
+const randomWrongMessage =
+    wrongMessages[
+        Math.floor(Math.random() * wrongMessages.length)
+    ];
+
+scrapsTalk(randomWrongMessage);
 
         robotMad();
     }
@@ -238,153 +312,7 @@ function checkAnswer(index, button) {
 // MULTIPLAYER
 // =========================
 
-const playerNameInput = document.getElementById("playerNameInput");
-const roomCodeInput = document.getElementById("roomCodeInput");
-const createRoomBtn = document.getElementById("createRoomBtn");
-const joinRoomBtn = document.getElementById("joinRoomBtn");
-const roomCodeDisplay = document.getElementById("roomCodeDisplay");
-const startRoundBtn = document.getElementById("startRoundBtn");
-const playersList = document.getElementById("playersList");
 
-createRoomBtn.addEventListener("click", () => {
-    const playerName = playerNameInput.value.trim() || "Host";
-
-    socket.emit("createRoom", playerName);
-});
-
-joinRoomBtn.addEventListener("click", () => {
-    const playerName = playerNameInput.value.trim() || "Player";
-    const code = roomCodeInput.value.trim().toUpperCase();
-
-    if (!code) {
-        alert("Enter a room code first.");
-        return;
-    }
-
-    socket.emit("joinRoom", {
-        code,
-        playerName
-    });
-});
-
-socket.on("roomCreated", (code) => {
-    multiplayerRoomCode = code;
-
-    roomCodeDisplay.textContent = `Room Code: ${code}`;
-    startRoundBtn.style.display = "block";
-});
-
-socket.on("roomJoined", (code) => {
-    multiplayerRoomCode = code;
-
-    roomCodeDisplay.textContent = `Joined Room: ${code}`;
-    startRoundBtn.style.display = "none";
-});
-
-socket.on("playersUpdated", (players) => {
-    playersList.innerHTML = "<h3>Players</h3>";
-
-    players.forEach(player => {
-        const p = document.createElement("p");
-        p.textContent = player.name;
-        playersList.appendChild(p);
-    });
-});
-
-startRoundBtn.addEventListener("click", () => {
-    socket.emit("startRound", {
-        code: multiplayerRoomCode,
-        mode: gameMode || "interesting"
-    });
-});
-
-socket.on("newRound", (round) => {
-    currentRound = round;
-    answered = false;
-
-    multiplayerScreen.classList.add("hidden");
-    modeScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
-
-    showMultiplayerRound(round);
-});
-
-function showMultiplayerRound(round) {
-    const container = document.getElementById("factButtons");
-
-    container.innerHTML = "";
-    document.getElementById("resultBox").innerHTML = "";
-
-    scrapsTalk("MULTIPLAYER ROUND STARTED!");
-
-    document.getElementById("score").textContent = score;
-    document.getElementById("streak").textContent = streak;
-    document.getElementById("roundNumber").textContent = roundNumber;
-
-    round.facts.forEach((fact, index) => {
-        const btn = document.createElement("button");
-
-        btn.className = "factBtn";
-        btn.textContent = fact;
-
-        btn.onclick = () => {
-            if (answered) return;
-
-            answered = true;
-
-            socket.emit("submitAnswer", {
-                code: multiplayerRoomCode,
-                answerIndex: index
-            });
-        };
-
-        container.appendChild(btn);
-    });
-}
-
-socket.on("answerResult", (result) => {
-    const buttons = document.querySelectorAll(".factBtn");
-
-    buttons.forEach(btn => {
-        btn.disabled = true;
-    });
-
-    if (result.correct) {
-        score++;
-        streak++;
-
-        playSound(correctSound);
-        playSound(pointSound);
-
-        scrapsTalk("YAY! MORE SCRAP!");
-        robotHappy();
-
-    } else {
-        streak = 0;
-
-        playSound(wrongSound);
-
-        scrapsTalk("THAT IS NOT SCRAP!");
-        robotMad();
-    }
-
-    document.getElementById("resultBox").innerHTML =
-        result.explanation;
-
-    document.getElementById("score").textContent = score;
-    document.getElementById("streak").textContent = streak;
-
-    roundNumber++;
-    document.getElementById("roundNumber").textContent = roundNumber;
-});
-
-socket.on("scoreUpdated", (scores) => {
-    console.log("Scores:", scores);
-});
-
-socket.on("errorMessage", (message) => {
-    alert(message);
-});
 
 // =========================
 // BACK TO MENU

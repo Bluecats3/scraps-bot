@@ -2,67 +2,28 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8" />
 
   <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 
-  <link
-    rel="apple-touch-icon"
-    sizes="192x192"
-    href="icon-192.png"
-  >
-
-  <meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
-  >
-
-  <meta
-    name="apple-mobile-web-app-title"
-    content="Fact or Scrap?"
-  >
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fact or Scrap?">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Fact or Scrap?</title>
 
-  <!-- FONT -->
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- CSS -->
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  />
-
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
   <main class="app-shell">
 
-    <!-- ========================= -->
     <!-- MENU SCREEN -->
-    <!-- ========================= -->
-
-    <section
-      id="modeScreen"
-      class="screen"
-    >
+    <section id="modeScreen" class="screen">
 
       <h1>Scraps Bot</h1>
 
@@ -70,35 +31,21 @@
         Pick a category to find the scrap!
       </p>
 
-      <!-- ROBOT -->
-
       <div class="robot-stage">
-
         <div class="antenna"></div>
-
         <div class="antenna-ball"></div>
 
         <div class="robot">
-
           <div class="visor">
-
             <div class="eye left-eye"></div>
-
             <div class="eye right-eye"></div>
-
           </div>
 
           <div class="cheek"></div>
-
           <div class="arm left-arm"></div>
-
           <div class="arm right-arm"></div>
-
         </div>
-
       </div>
-
-      <!-- MENU BUTTONS -->
 
       <div class="menu-buttons">
 
@@ -118,211 +65,110 @@
           WEIRD FACTS
         </button>
 
-       
+        <button onclick="openRules()">
+          HOW TO PLAY
+        </button>
 
       </div>
 
     </section>
 
-    <!-- ========================= -->
-    <!-- MULTIPLAYER SCREEN -->
-    <!-- ========================= -->
+    <!-- RULES SCREEN -->
+    <section id="rulesScreen" class="screen hidden">
 
-    <section
-      id="multiplayerScreen"
-      class="screen hidden"
-    >
-
-      <h1>Multiplayer</h1>
-
-      <div class="multiplayer-box">
-
-        <input
-          id="playerNameInput"
-          placeholder="Your name"
-        />
-
-        <button id="createRoomBtn">
-          CREATE MATCH
-        </button>
-
-        <input
-          id="roomCodeInput"
-          placeholder="Enter code"
-          maxlength="4"
-        />
-
-        <button id="joinRoomBtn">
-          JOIN MATCH
-        </button>
-
-        <p id="roomCodeDisplay"></p>
-
-        <button
-          id="startRoundBtn"
-          style="display:none;"
-        >
-          START MATCH
-        </button>
-
-        <div id="playersList"></div>
-
-      </div>
-
-      <button
-        class="menuBtn"
-        onclick="closeMultiplayerMenu()"
-      >
+      <button class="topExitBtn" onclick="closeRules()">
         MAIN MENU
       </button>
 
+      <h1 class="rulesTitle">
+        SCRAPS BOT RULES
+      </h1>
+
+      <div class="rulesFacts">
+
+  <div class="rulesFact">
+    2 facts are REAL.
+  </div>
+
+  <div class="rulesFact">
+    1 fact is SCRAP.
+  </div>
+
+  <div class="rulesFact">
+    Tap the false fact to earn points!
+  </div>
+
+  <div class="rulesFact">
+    Build streaks to become a Scrap Master.
+  </div>
+
+</div>
+
     </section>
 
-    <!-- ========================= -->
+    <!-- MULTIPLAYER SCREEN -->
+   
     <!-- GAME SCREEN -->
-    <!-- ========================= -->
-
-    <section
-      id="gameScreen"
-      class="screen hidden"
-    >
+    <section id="gameScreen" class="screen hidden">
 
       <h1>Fact or Scrap?</h1>
 
-      <!-- SCORE -->
+      <button class="topExitBtn" onclick="backToMenu(false)">
+        MAIN MENU
+      </button>
 
-      <p class="stats">
+      <div class="scoreboard">
 
-        Score:
-        <span id="score">0</span>
+        <div class="scoreCard">
+          <span>SCORE</span>
+          <strong id="score">0</strong>
+        </div>
 
-        |
+        <div class="scoreCard">
+          <span>STREAK</span>
+          <strong id="streak">0</strong>
+        </div>
 
-        Streak:
-        <span id="streak">0</span>
-
-        |
-
-        Round:
-        <span id="roundNumber">1</span>
-
-      </p>
-
-      <!-- ROBOT -->
-
-      <div class="robot-stage small">
-
-        <div class="antenna"></div>
-
-        <div class="antenna-ball"></div>
-
-        <div class="robot">
-
-          <div class="visor">
-
-            <div class="eye"></div>
-
-            <div class="eye"></div>
-
-          </div>
-
-          <div class="cheek"></div>
-
-          <div class="arm left-arm"></div>
-
-          <div class="arm right-arm"></div>
-
+        <div class="scoreCard">
+          <span>ROUND</span>
+          <strong id="roundNumber">1</strong>
         </div>
 
       </div>
 
-      <!-- ROBOT TEXT -->
+      <div class="robot-stage small">
+        <div class="antenna"></div>
+        <div class="antenna-ball"></div>
+
+        <div class="robot">
+          <div class="visor">
+            <div class="eye"></div>
+            <div class="eye"></div>
+          </div>
+
+          <div class="cheek"></div>
+          <div class="arm left-arm"></div>
+          <div class="arm right-arm"></div>
+        </div>
+      </div>
 
       <p id="scrapsText">
         Scraps bot is ready.
       </p>
 
-      <!-- ANSWERS -->
-
       <div id="factButtons"></div>
-
-      <!-- RESULT -->
 
       <div id="resultBox"></div>
 
-      <!-- CONTROLS -->
-
-      <div class="gameControls">
-
-        <button
-          class="menuBtn"
-          onclick="backToMenu(false)"
-        >
-          MAIN MENU
-        </button>
-
-      </div>
+      <div class="gameControls"></div>
 
     </section>
 
-    <!-- ========================= -->
-    <!-- LEADERBOARD SCREEN -->
-    <!-- ========================= -->
 
-    <section
-      id="leaderboardScreen"
-      class="screen hidden"
-    >
-
-      <h1>Leaderboard</h1>
-
-      <p class="subtitle">
-        Top Scrap Finders
-      </p>
-
-      <!-- ROBOT -->
-
-      <div class="robot-stage small">
-
-        <div class="antenna"></div>
-
-        <div class="antenna-ball"></div>
-
-        <div class="robot">
-
-          <div class="visor">
-
-            <div class="eye"></div>
-
-            <div class="eye"></div>
-
-          </div>
-
-          <div class="cheek"></div>
-
-          <div class="arm left-arm"></div>
-
-          <div class="arm right-arm"></div>
-
-        </div>
-
-      </div>
-
-      <button
-        class="menuBtn"
-        onclick="backToMenu(false)"
-      >
-        MAIN MENU
-      </button>
-
-    </section>
 
   </main>
 
-  <!-- SCRIPT -->
-
-  <script src="/socket.io/socket.io.js"></script>
-
+  
   <script src="script.js"></script>
 
 </body>

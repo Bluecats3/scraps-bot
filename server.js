@@ -144,7 +144,15 @@ General rules:
 - Keep each option under 15 words.
 - Explanation must be under 20 words.
 - Make the fake answer believable but clearly false.
-- Do not repeat facts.
+- Create a fresh-feeling round.
+- Use a different type of subject each round.
+- Avoid relying on the most obvious common trivia examples.
+- Avoid overused internet trivia and classroom facts.
+- Prefer unusual, lesser-known, playful, or oddly specific facts.
+- Avoid facts commonly repeated in kids trivia, TikTok trivia, or “fun fact” lists.
+- Avoid overused examples like octopus hearts, bananas as berries, sharks older than trees, honey lasting forever, and butterflies tasting with their feet unless used rarely.
+- Mix topics naturally: animals, space, food, inventions, geography, weather, art, music, sports, history, and everyday objects.
+- The round should feel surprising, playful, and kid-friendly.
 - Avoid these already-used options:
 
 ${usedFacts.slice(-60).map(f => `- ${f}`).join("\n")}
@@ -160,7 +168,7 @@ JSON format:
 
         const text =
             response.output?.[0]?.content?.[0]?.text || "";
-
+     
         const round = JSON.parse(text);
 
         if (
@@ -176,8 +184,8 @@ JSON format:
 
         usedFacts.push(...round.facts);
 
-        if (usedFacts.length > 100) {
-            usedFacts.splice(0, usedFacts.length - 100);
+        if (usedFacts.length > 60) {
+            usedFacts.splice(0, usedFacts.length - 60);
         }
 
         return round;
