@@ -18,7 +18,7 @@ workflows:
         XCODE_SCHEME: "App"
 
     integrations:
-      app_store_connect: Codemagic
+      app_store_connect: ScrapBotAppvbgy
 
     scripts:
 
@@ -47,11 +47,6 @@ workflows:
       - name: Sync Capacitor
         script: |
           npx cap sync ios
-
-      - name: Pod install
-        script: |
-          cd ios/App
-          pod install
 
       - name: Build IPA
         script: |
