@@ -6,6 +6,9 @@ workflows:
 
     environment:
       node: 22
+    
+    integrations:
+      app_store_connect: ScrapBotApp
 
     scripts:
       - name: Install dependencies
