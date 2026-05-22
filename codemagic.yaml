@@ -23,39 +23,29 @@ workflows:
         script: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
 
-      - name: Recreate iOS platform
+      - name: Add iOS platform if missing
         script: |
-          rm -rf ios
-          npx cap add ios
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
 
       - name: Sync Capacitor
         script: |
           npx cap sync ios
-          echo "Checking ios/App:"
-          ls -la ios/App
 
-      - name: Increase iOS build number
+      - name: Pod install
         script: |
           cd ios/App
-          agvtool new-version -all $BUILD_NUMBER
+          pod install
 
       - name: Build signed IPA
         script: |
-          xcode-project use-profiles
-
-          cd ios/App
-
-          xcodebuild \
-            -workspace App.xcworkspace \
-            -scheme App \
-            -configuration Release \
-            -archivePath build/App.xcarchive \
-            archive
-
           xcode-project build-ipa \
-            --workspace App.xcworkspace \
-            --scheme App
+            --workspace ios/App/App.xcworkspace \
+            --scheme App \
+            --config Release
 
     artifacts:
-      - ios/App/build/*.ipa
-      - ios/App/build/ios/ipa/*.ipa
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
