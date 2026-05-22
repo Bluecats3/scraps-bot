@@ -1,6 +1,6 @@
 workflows:
   ios-build:
-    name: Scrap Bot iOS Build
+    name: ScrapBot iOS Build
     max_build_duration: 60
     instance_type: mac_mini_m2
 
@@ -16,10 +16,6 @@ workflows:
         script: |
           npm install
 
-      - name: Install Capacitor
-        script: |
-          npm install @capacitor/core @capacitor/cli @capacitor/ios
-
       - name: Prepare web assets
         script: |
           mkdir -p www
@@ -27,55 +23,34 @@ workflows:
           cp *.png www/ 2>/dev/null || true
           cp favicon.ico www/ 2>/dev/null || true
 
-      - name: Create Capacitor config if missing
+      - name: Add iOS platform if missing
         script: |
-          if [ ! -f "capacitor.config.json" ]; then
-            cat > capacitor.config.json <<EOF
-          {
-            "appId": "com.bluecats3.professorscraps",
-            "appName": "Scrap Bot",
-            "webDir": "www"
-          }
-          EOF
+          if [ ! -d "ios" ]; then
+            npx cap add ios
           fi
 
-      - name: Add iOS platform
+      - name: Sync Capacitor
         script: |
-          rm -rf ios
-          npx cap add ios
           npx cap sync ios
 
-      - name: Show iOS files
+      - name: Set up code signing settings on Xcode project
         script: |
-          find . -name "*.xcworkspace" -o -name "*.xcodeproj"
+          xcode-project use-profiles
 
-      - name: Fetch signing files
+      - name: Build signed archive
         script: |
-          app-store-connect fetch-signing-files com.bluecats3.professorscraps \
-            --type IOS_APP_STORE \
-            --create
+          cd ios/App
 
-      - name: Initialize keychain
-        script: |
-          keychain initialize
-
-      - name: Add certificates
-        script: |
-          keychain add-certificates
-
-      - name: Set up code signing
-        script: |
-          xcode-project use-profiles \
-            --project ios/App/App.xcodeproj
-
-      - name: Build signed IPA
-        script: |
-          xcode-project build-ipa \
-            --project ios/App/App.xcodeproj \
-            --scheme App \
-            --config Release \
-            --archive-flags="-destination 'generic/platform=iOS' DEVELOPMENT_TEAM=34774CV554 CODE_SIGN_STYLE=Automatic"
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination generic/platform=iOS \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM=4K5NNL96PZ \
+            archive \
+            -archivePath build/App.xcarchive
 
     artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
+      - ios/App/build/App.xcarchive
