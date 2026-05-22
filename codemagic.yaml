@@ -33,11 +33,6 @@ workflows:
         script: |
           npx cap sync ios
 
-      - name: Pod install
-        script: |
-          cd ios/App
-          pod install
-
       - name: Build signed IPA
         script: |
           xcode-project build-ipa \
@@ -47,5 +42,3 @@ workflows:
 
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
