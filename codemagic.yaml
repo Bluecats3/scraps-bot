@@ -18,7 +18,7 @@ workflows:
         XCODE_SCHEME: "App"
 
     integrations:
-      app_store_connect: ScrapBotAppvbgy
+      app_store_connect: ScrapBotApp
 
     scripts:
 
