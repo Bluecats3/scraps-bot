@@ -6,9 +6,9 @@ workflows:
 
     environment:
       node: 22
-    
-    integrations:
-      app_store_connect: ScrapBotApp
+
+      integrations:
+        app_store_connect: ScrapBotApp
 
     scripts:
       - name: Install dependencies
@@ -19,7 +19,6 @@ workflows:
         script: |
           mkdir -p www
           cp index.html style.css script.js manifest.json www/
-
           cp *.png www/ 2>/dev/null || true
           cp favicon.ico www/ 2>/dev/null || true
 
