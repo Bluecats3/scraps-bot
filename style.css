@@ -329,7 +329,7 @@ button,
   background: #ffe56d;
 
   font-family: 'Rubik Mono One', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
 
   color: #000;
 
@@ -641,14 +641,14 @@ button:hover,
 
   margin: 0 auto 12px;
 
-  font-size: 12px !important;
+  font-size: 15px !important;
 
   border-radius: 14px;
 
   background: #ffd84d !important;
   color: #222;
 
-  box-shadow: 0 4px 0 #caa52f !important;
+  box-shadow: 0 4px 0 #222 !important;
 }
 
 .scoreboard {
@@ -676,7 +676,7 @@ button:hover,
 .scoreCard span {
   display: block;
 
-  font-size: 10px;
+  font-size: 16px;
 
   font-weight: bold;
 
@@ -740,3 +740,21 @@ button:hover,
   align-items: center;
   justify-content: center;
 }
+
+.poweredBy {
+margin-top: 22px;
+
+text-align: center;
+
+font-size: 12px;
+
+font-family: Arial, sans-serif;
+
+letter-spacing: 1px;
+
+color: #2ba4cb;
+
+text-shadow: 0 0 6px rgba(43, 164, 203, 0.35);
+}
+
+
