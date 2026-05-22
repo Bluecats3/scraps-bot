@@ -35,13 +35,17 @@ workflows:
 
       - name: Build signed IPA 
         script: |
-          cd ios/App
+          xcode-project use-profiles
+
+          cd ios/App          
+
           xcodebuild \
-            -project App.xcodeproj \
+            -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -archivePath build/App.xcarchive \
             archive
+                    
           xcodebuild \
             -exportArchive \
             -archivePath build/App.xcarchive \
@@ -51,3 +55,5 @@ workflows:
     artifacts:
       - ios/App/build/*.ipa
       - ios/App/build/**/*.xcarchive
+ 
+                                
