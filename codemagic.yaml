@@ -33,6 +33,11 @@ workflows:
         script: |
           npx cap sync ios
 
+      - name: Increase iOS build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $BUILD_NUMBER
+
       - name: Build signed IPA 
         script: |
           xcode-project use-profiles
@@ -46,11 +51,9 @@ workflows:
             -archivePath build/App.xcarchive \
             archive
                     
-          xcodebuild \
-            -exportArchive \
-            -archivePath build/App.xcarchive \
-            -exportOptionsPlist ../ ../ExportOptions.plist \
-            -exportPath build
+          xcode-project build-ipa \
+            --workspace App.xcworkspace \
+            --scheme App
                        
     artifacts:
       - ios/App/build/*.ipa
