@@ -18,7 +18,12 @@ workflows:
       - name: Prepare web assets
         script: |
           mkdir -p www
-          cp index.html style.css script.js manifest.json www/
+
+          cp index.html www/
+          cp style.css www/
+          cp script.js www/
+          cp manifest.json www/
+
           cp *.png www/ 2>/dev/null || true
           cp favicon.ico www/ 2>/dev/null || true
 
@@ -36,11 +41,28 @@ workflows:
         script: |
           npx cap sync ios
 
+      - name: Create export options plist
+        script: |
+          cat > /Users/builder/export_options.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+
+            <key>signingStyle</key>
+            <string>automatic</string>
+          </dict>
+          </plist>
+          EOF
+
       - name: Build IPA
         script: |
           xcode-project build-ipa \
             --project ios/App/App.xcodeproj \
-            --scheme App
+            --scheme App \
+            --export-options-plist /Users/builder/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
