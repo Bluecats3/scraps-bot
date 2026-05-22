@@ -1,6 +1,6 @@
 workflows:
   ios-build:
-    name: Professor Scraps iOS Build
+    name: Scrap Bot iOS Build
     max_build_duration: 60
     instance_type: mac_mini_m2
 
@@ -28,14 +28,14 @@ workflows:
           if [ ! -f "capacitor.config.json" ]; then
             cat > capacitor.config.json <<EOF
           {
-            "appId": "com.professorscraps.app",
-            "appName": "Professor Scraps",
+            "appId": "com.bluecats3.professorscraps",
+            "appName": "Scrap Bot",
             "webDir": "www"
           }
           EOF
           fi
 
-      - name: Add iOS platform fresh
+      - name: Add iOS platform
         script: |
           rm -rf ios
           npx cap add ios
@@ -45,12 +45,28 @@ workflows:
         script: |
           find . -name "*.xcworkspace" -o -name "*.xcodeproj" -o -name "Podfile"
 
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles \
+            --project ios/App/App.xcodeproj
+
       - name: Build signed IPA
         script: |
           xcode-project build-ipa \
             --project ios/App/App.xcodeproj \
             --scheme App \
-            --config Release
+            --config Release \
+            --archive-flags="-destination 'generic/platform=iOS'" \
+            --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      email:
+        recipients:
+          - YOUR_EMAIL_HERE
+        notify:
+          success: true
+          failure: true
