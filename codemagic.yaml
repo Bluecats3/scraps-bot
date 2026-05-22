@@ -18,12 +18,10 @@ workflows:
       - name: Prepare web assets
         script: |
           mkdir -p www
-
           cp index.html www/
           cp style.css www/
           cp script.js www/
           cp manifest.json www/
-
           cp *.png www/ 2>/dev/null || true
           cp favicon.ico www/ 2>/dev/null || true
 
@@ -43,19 +41,17 @@ workflows:
 
       - name: Create export options plist
         script: |
-          touch /Users/builder/export_options.plist
+          python3 - <<'PY'
+          import plistlib
 
-          /usr/libexec/PlistBuddy \
-            -c "Clear dict" \
-            /Users/builder/export_options.plist
+          data = {
+              "method": "app-store-connect",
+              "signingStyle": "automatic"
+          }
 
-          /usr/libexec/PlistBuddy \
-            -c "Add :method string app-store-connect" \
-            /Users/builder/export_options.plist
-
-          /usr/libexec/PlistBuddy \
-            -c "Add :signingStyle string automatic" \
-            /Users/builder/export_options.plist
+          with open("/Users/builder/export_options.plist", "wb") as f:
+              plistlib.dump(data, f)
+          PY
 
           plutil -lint /Users/builder/export_options.plist
 
