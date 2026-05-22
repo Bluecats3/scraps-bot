@@ -23,9 +23,10 @@ workflows:
         script: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
 
-      - name: Add iOS platform if missing
+      - name: Add iOS platform if missing or broken
         script: |
-          if [ ! -d "ios" ]; then
+          if [ ! -f "ios/App/App.xcworkspace" ]; then
+            rm -rf ios
             npx cap add ios
           fi
 
@@ -38,11 +39,11 @@ workflows:
           cd ios/App
           agvtool new-version -all $BUILD_NUMBER
 
-      - name: Build signed IPA 
+      - name: Build signed IPA
         script: |
           xcode-project use-profiles
-          
-          cd ios/App        
+
+          cd ios/App
 
           xcodebuild \
             -workspace App.xcworkspace \
@@ -50,11 +51,11 @@ workflows:
             -configuration Release \
             -archivePath build/App.xcarchive \
             archive
-                    
+
           xcode-project build-ipa \
             --workspace App.xcworkspace \
             --scheme App
-                       
+
     artifacts:
       - ios/App/build/*.ipa
-                                
+      - ios/App/build/**/*.xcarchive
