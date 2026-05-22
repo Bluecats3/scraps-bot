@@ -12,6 +12,10 @@ workflows:
         script: |
           npm install
 
+      - name: Install Capacitor
+        script: |
+          npm install @capacitor/core @capacitor/cli @capacitor/ios
+
       - name: Prepare web assets
         script: |
           mkdir -p www
@@ -19,24 +23,32 @@ workflows:
           cp *.png www/ 2>/dev/null || true
           cp favicon.ico www/ 2>/dev/null || true
 
-      - name: Install Capacitor
+      - name: Create Capacitor config if missing
         script: |
-          npm install @capacitor/core @capacitor/cli @capacitor/ios
-
-      - name: Add iOS platform if missing
-        script: |
-          if [ ! -d "ios" ]; then
-            npx cap add ios
+          if [ ! -f "capacitor.config.json" ]; then
+            cat > capacitor.config.json <<EOF
+          {
+            "appId": "com.professorscraps.app",
+            "appName": "Professor Scraps",
+            "webDir": "www"
+          }
+          EOF
           fi
 
-      - name: Sync Capacitor
+      - name: Add iOS platform fresh
         script: |
+          rm -rf ios
+          npx cap add ios
           npx cap sync ios
+
+      - name: Show iOS files
+        script: |
+          find . -name "*.xcworkspace" -o -name "*.xcodeproj" -o -name "Podfile"
 
       - name: Build signed IPA
         script: |
           xcode-project build-ipa \
-            --workspace ios/App/App.xcworkspace \
+            --project ios/App/App.xcodeproj \
             --scheme App \
             --config Release
 
